@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Milton.Extensions;
 
 namespace Milton.Meta;
@@ -24,12 +25,12 @@ internal class StateMeta
 
         return KnownStateMeta.GetOrAdd(type, t =>
         {
-            var values = t.GetProperties().Where(property => property.IsStateValue()).Select(property =>
+            var values = t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateValue()).Select(property =>
                 (StateValueMeta) typeof(StateValueMeta).GetMethod(nameof(StateValueMeta.Build))!
                     .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0])
                     .Invoke(null, new object?[] {property})!);
             
-            var containers = t.GetProperties().Where(property => property.IsStateContainer()).Select(property =>
+            var containers = t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateContainer()).Select(property =>
                 (StateContainerMeta) typeof(StateContainerMeta).GetMethod(nameof(StateContainerMeta.Build))!
                     .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0])
                     .Invoke(null, new object?[] {property})!);
