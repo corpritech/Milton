@@ -3,7 +3,7 @@ using Milton.Extensions;
 
 namespace Milton.Meta;
 
-public class StateMeta
+internal class StateMeta
 {
     public Type AssignedType { get; }
     public IEnumerable<StateValueMeta> Values { get; }

@@ -2,5 +2,5 @@
 
 public interface IStateContainerFactory
 {
-    public IStateContainer<T> CreateStateContainer<T>() where T : class;
+    public IStateContainer<TState> CreateStateContainer<TState>() where TState : class;
 }

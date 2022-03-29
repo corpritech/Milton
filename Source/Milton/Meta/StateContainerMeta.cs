@@ -4,7 +4,7 @@ using Milton.Abstractions;
 
 namespace Milton.Meta;
 
-public class StateContainerMeta
+internal class StateContainerMeta
 {
     public Type DeclaringPropertyType { get; }
     public Type AssignedType { get; }

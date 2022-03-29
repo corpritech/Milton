@@ -4,7 +4,7 @@ using Milton.Abstractions;
 
 namespace Milton.Meta;
 
-public class StateValueMeta
+internal class StateValueMeta
 {
     public Type DeclaringPropertyType { get; }
     public Type ValueType { get; }

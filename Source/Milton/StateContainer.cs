@@ -6,45 +6,87 @@ namespace Milton;
 
 public class StateContainer<TState> : IStateContainer<TState> where TState : class
 {
-    public event Action<IStateContainer<TState>>? OnChange;
-    public TState State { get; }
-    private readonly StateContainerMeta _meta;
+    public TState CurrentState { get; private set; }
+    public TState? PreviousState { get; private set; }
+    
+    private event Action<IStateContainer<TState>>? _onChange; 
+    private readonly StateMeta _stateMeta;
+    private readonly object _stateUpdateLock = new();
 
-    public StateContainer(TState state, StateContainerMeta meta)
+    public StateContainer(TState state)
     {
-        State = state;
-        _meta = meta;
+        CurrentState = state;
+        _stateMeta = StateMeta.Build<TState>();
+        
         SubscribeToStateValues();
         SubscribeToStateContainers();
     }
+    
+    public void OnChange(Action<IStateContainer<TState>> handler)
+        => _onChange += handler;
 
     private void SubscribeToStateValues()
     {
-        foreach (var valueMeta in _meta.State.Values)
+        foreach (var valueMeta in _stateMeta.Values)
         {
-            var onChangeEvent = valueMeta.AssignedType.GetEvent(nameof(StateValue<object>.OnChange));
+            var onChangeEventMethod = valueMeta.AssignedType.GetMethod(nameof(IStateValue<object>.OnChange));
             var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateValueChanged), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(valueMeta.DeclaringPropertyType, valueMeta.ValueType);
-            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEvent!.EventHandlerType!, this, onChangeEventHandler);
-            onChangeEvent.AddEventHandler(valueMeta.DeclaringProperty.GetValue(State), onChangeEventDelegate);
+            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
+            onChangeEventMethod.Invoke(valueMeta.DeclaringProperty.GetValue(CurrentState), new object?[] { onChangeEventDelegate });
         }
     }
-    
+
     private void SubscribeToStateContainers()
     {
-        foreach (var containerMeta in _meta.State.Containers)
+        foreach (var containerMeta in _stateMeta.Containers)
         {
             var onChangeEvent = containerMeta.AssignedType.GetEvent(nameof(StateContainer<object>.OnChange));
             var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateContainerChanged), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(containerMeta.DeclaringPropertyType, containerMeta.State.AssignedType);
             var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEvent!.EventHandlerType!, this, onChangeEventHandler);
-            onChangeEvent.AddEventHandler(containerMeta.DeclaringProperty!.GetValue(State), onChangeEventDelegate);
+            onChangeEvent.AddEventHandler(containerMeta.DeclaringProperty!.GetValue(CurrentState), onChangeEventDelegate);
         }
     }
 
-    private void HandleStateValueChanged<TStateValue, TValue>(TStateValue value) where TStateValue : IStateValue<TValue>
-        => NotifyStateChanged();
+    private void HandleStateValueChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IStateValue<TValue>
+    {
+        lock (_stateUpdateLock)
+        {
+           var property = _stateMeta.AssignedType.GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x => ReferenceEquals(x.GetValue(CurrentState), oldValue));
 
-    private void HandleStateContainerChanged<TStateContainer, TState1>(TStateContainer value) where TStateContainer : IStateContainer<TState1> where TState1 : class
-        => NotifyStateChanged();
+           if (property == null)
+           {
+               // Somehow the state was updated prior to this call. Possible race condition?
+               throw new InvalidOperationException("Failed to update state. The property could not be found.");
+           }
 
-    private void NotifyStateChanged() => OnChange?.Invoke(this);
+           var newState = CopyState();
+           
+           property.SetValue(newState, newValue);
+
+           PreviousState = CurrentState;
+           CurrentState = newState;
+        }
+        
+        NotifyStateChanged();
+    }
+
+    private void HandleStateContainerChanged<TStateContainer, TState1>(TStateContainer _) where TStateContainer : IStateContainer<TState1> where TState1 : class
+    {
+        NotifyStateChanged();
+    }
+
+    private TState CopyState()
+    {
+        var properties = typeof(TState).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var newState = Activator.CreateInstance<TState>();
+        
+        foreach (var property in properties)
+        {
+            property.SetValue(newState, property.GetValue(CurrentState));
+        }
+
+        return newState;
+    }
+
+    private void NotifyStateChanged() => _onChange?.Invoke(this);
 }

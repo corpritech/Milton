@@ -5,13 +5,6 @@ namespace Milton;
 
 public class StateContainerFactory : IStateContainerFactory
 {
-    private readonly IStateContainerRegistry _stateContainerRegistry;
-
-    public StateContainerFactory(IStateContainerRegistry stateContainerRegistry)
-    {
-        _stateContainerRegistry = stateContainerRegistry;
-    }
-
     public IStateContainer<T> CreateStateContainer<T>() where T : class
     {
         var stateContainerMeta = StateContainerMeta.Build<IStateContainer<T>, T>();
@@ -29,16 +22,11 @@ public class StateContainerFactory : IStateContainerFactory
 
         ThrowIfTypeDefault(meta.State.AssignedType, state);
 
-        var stateContainer = _stateContainerRegistry.GetOrAdd(meta.AssignedType, t =>
-        {
-            AssignStateProperties(state!, meta.State);
-            
-            var container = Activator.CreateInstance(t, state, meta)!;
+        AssignStateProperties(state!, meta.State);
 
-            ThrowIfTypeDefault(t, container);
+        var stateContainer = Activator.CreateInstance(meta.AssignedType, state, meta)!;
 
-            return container;
-        });
+        ThrowIfTypeDefault(meta.AssignedType, stateContainer);
 
         return stateContainer;
     }
@@ -53,9 +41,9 @@ public class StateContainerFactory : IStateContainerFactory
             }
 
             var stateValue = Activator.CreateInstance(valueMeta.AssignedType, valueMeta.InitialValue);
-            
+
             ThrowIfTypeDefault(valueMeta.AssignedType, stateValue);
-            
+
             valueMeta.DeclaringProperty.SetValue(state, stateValue);
         }
 
