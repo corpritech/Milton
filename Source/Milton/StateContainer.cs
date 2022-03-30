@@ -8,7 +8,7 @@ public class StateContainer<TState> : IStateContainer<TState> where TState : cla
 {
     public TState CurrentState { get; private set; }
     public TState? PreviousState { get; private set; }
-    
+
     private event Action<IStateContainer<TState>>? _onChange; 
     private readonly StateMeta _stateMeta;
     private readonly object _stateUpdateLock = new();
@@ -29,8 +29,14 @@ public class StateContainer<TState> : IStateContainer<TState> where TState : cla
     {
         foreach (var valueMeta in _stateMeta.Values)
         {
+            if (valueMeta.DeclaringProperty.GetValue(CurrentState) == null)
+            {
+                continue;
+            }
+            
             var onChangeEventMethod = valueMeta.AssignedType.GetMethod(nameof(IStateValue<object>.OnChange));
-            var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateValueChanged), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(valueMeta.DeclaringPropertyType, valueMeta.ValueType);
+            var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateValueChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(valueMeta.DeclaringPropertyType, valueMeta.ValueType);
             var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
             onChangeEventMethod.Invoke(valueMeta.DeclaringProperty.GetValue(CurrentState), new object?[] { onChangeEventDelegate });
         }
@@ -40,10 +46,16 @@ public class StateContainer<TState> : IStateContainer<TState> where TState : cla
     {
         foreach (var containerMeta in _stateMeta.Containers)
         {
-            var onChangeEvent = containerMeta.AssignedType.GetEvent(nameof(StateContainer<object>.OnChange));
-            var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateContainerChanged), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(containerMeta.DeclaringPropertyType, containerMeta.State.AssignedType);
-            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEvent!.EventHandlerType!, this, onChangeEventHandler);
-            onChangeEvent.AddEventHandler(containerMeta.DeclaringProperty!.GetValue(CurrentState), onChangeEventDelegate);
+            if (containerMeta.DeclaringProperty == null || containerMeta.DeclaringProperty.GetValue(CurrentState) == null)
+            {
+                continue;
+            }
+            
+            var onChangeEventMethod = containerMeta.AssignedType.GetMethod(nameof(IStateContainer<object>.OnChange));
+            var onChangeEventHandler = GetType().GetMethod(nameof(HandleStateContainerChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(containerMeta.DeclaringPropertyType, containerMeta.State.AssignedType);
+            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
+            onChangeEventMethod.Invoke(containerMeta.DeclaringProperty.GetValue(CurrentState), new object?[] {onChangeEventDelegate});
         }
     }
 
@@ -59,7 +71,7 @@ public class StateContainer<TState> : IStateContainer<TState> where TState : cla
                throw new InvalidOperationException("Failed to update state. The property could not be found.");
            }
 
-           var newState = CopyState();
+           var newState = CloneState();
            
            property.SetValue(newState, newValue);
 
@@ -75,7 +87,7 @@ public class StateContainer<TState> : IStateContainer<TState> where TState : cla
         NotifyStateChanged();
     }
 
-    private TState CopyState()
+    private TState CloneState()
     {
         var properties = typeof(TState).GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var newState = Activator.CreateInstance<TState>();

@@ -24,17 +24,22 @@ public class StateContainerFactory : IStateContainerFactory
 
         AssignStateProperties(state!, meta.State);
 
-        var stateContainer = Activator.CreateInstance(meta.AssignedType, state, meta)!;
+        var stateContainer = Activator.CreateInstance(meta.AssignedType, state);
 
         ThrowIfTypeDefault(meta.AssignedType, stateContainer);
 
-        return stateContainer;
+        return stateContainer!;
     }
 
     private void AssignStateProperties(object state, StateMeta meta)
     {
         foreach (var valueMeta in meta.Values)
         {
+            if (valueMeta.DeclaringProperty.GetValue(state) != null)
+            {
+                continue;
+            }
+            
             if (valueMeta.InitialValue == default)
             {
                 throw new InvalidOperationException($"Cannot assign property with missing {nameof(InitialValueAttribute)} attribute.");
@@ -52,6 +57,11 @@ public class StateContainerFactory : IStateContainerFactory
             if (containerMeta.DeclaringProperty == null)
             {
                 throw new InvalidOperationException("Nested state containers must have an assigned property.");
+            }
+            
+            if (containerMeta.DeclaringProperty.GetValue(state) != null)
+            {
+                continue;
             }
 
             containerMeta.DeclaringProperty.SetValue(state, CreateStateContainer(containerMeta));

@@ -10,8 +10,6 @@ internal class StateMeta
     public IEnumerable<StateValueMeta> Values { get; }
     public IEnumerable<StateContainerMeta> Containers { get; }
 
-    private static readonly ConcurrentDictionary<Type, StateMeta> KnownStateMeta = new();
-
     private StateMeta(Type assignedType, IEnumerable<StateValueMeta> values, IEnumerable<StateContainerMeta> containers)
     {
         AssignedType = assignedType;
@@ -22,20 +20,17 @@ internal class StateMeta
     public static StateMeta Build<TState>() where TState : class
     {
         var type = typeof(TState);
-
-        return KnownStateMeta.GetOrAdd(type, t =>
-        {
-            var values = t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateValue()).Select(property =>
+        
+            var values = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateValue()).Select(property =>
                 (StateValueMeta) typeof(StateValueMeta).GetMethod(nameof(StateValueMeta.Build))!
                     .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0])
                     .Invoke(null, new object?[] {property})!);
             
-            var containers = t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateContainer()).Select(property =>
+            var containers = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.IsStateContainer()).Select(property =>
                 (StateContainerMeta) typeof(StateContainerMeta).GetMethod(nameof(StateContainerMeta.Build))!
                     .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0])
                     .Invoke(null, new object?[] {property})!);
 
-            return new StateMeta(t, values, containers);
-        });
+            return new StateMeta(type, values, containers);
     }
 }

@@ -4,23 +4,19 @@ namespace Milton;
 
 public record StateValue<TValue> : IStateValue<TValue>
 {
-    public TValue Value
-    {
-        get => _value;
-    }
-
-    private TValue _value;
+    public TValue Value { get; }
+    
     private StateValueEventWrapper _events;
 
     public StateValue(TValue value)
     {
-        _value = value;
+        Value = value;
         _events = new StateValueEventWrapper();
     }
     
     private StateValue(StateValueEventWrapper events, TValue value)
     {
-        _value = value;
+        Value = value;
         _events = events;
     }
 
@@ -40,6 +36,12 @@ public record StateValue<TValue> : IStateValue<TValue>
         NotifyStateChanged(newStateValue);
         
         return newStateValue;
+    }
+
+    public Task<IStateValue<TValue>> SetValueAsync(TValue value)
+    {
+        var newStateValue = SetValue(value);
+        return Task.FromResult(newStateValue);
     }
 
     public void OnChange(Action<IStateValue<TValue>, IStateValue<TValue>> handler)
@@ -82,6 +84,6 @@ public record StateValue<TValue> : IStateValue<TValue>
         public event Action<IStateValue<TValue>, IStateValue<TValue>>? OnChange;
 
         internal void InvokeOnChange(IStateValue<TValue> newState, IStateValue<TValue> oldState)
-            => OnChange.Invoke(newState, oldState);
+            => OnChange?.Invoke(newState, oldState);
     }
 }
