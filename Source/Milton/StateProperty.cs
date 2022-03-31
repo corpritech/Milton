@@ -2,7 +2,7 @@
 
 namespace Milton;
 
-public record InnerStateValue<TValue> : IInnerStateValue<TValue>
+public record StateProperty<TValue> : IStateProperty<TValue>
 {
     public TValue Value { get; }
     
@@ -11,19 +11,19 @@ public record InnerStateValue<TValue> : IInnerStateValue<TValue>
     private readonly StateValueEventWrapper _events;
     private readonly object _setValueLock = new();
 
-    public InnerStateValue(TValue value)
+    public StateProperty(TValue value)
     {
         Value = value;
         _events = new StateValueEventWrapper();
     }
     
-    private InnerStateValue(StateValueEventWrapper events, TValue value)
+    private StateProperty(StateValueEventWrapper events, TValue value)
     {
         Value = value;
         _events = events;
     }
 
-    public IInnerStateValue<TValue> SetValue(TValue value)
+    public IStateProperty<TValue> SetValue(TValue value)
     {
         lock (_setValueLock)
         {
@@ -34,34 +34,34 @@ public record InnerStateValue<TValue> : IInnerStateValue<TValue>
             _changed = true;
         }
         
-        IInnerStateValue<TValue> newInnerStateValue;
+        IStateProperty<TValue> newStateProperty;
 
         if (value is ICloneable cloneableValue)
         {
-            newInnerStateValue = new InnerStateValue<TValue>(_events, (TValue) cloneableValue.Clone());
+            newStateProperty = new StateProperty<TValue>(_events, (TValue) cloneableValue.Clone());
         }
         else
         {
-            newInnerStateValue = new InnerStateValue<TValue>(_events, value);
+            newStateProperty = new StateProperty<TValue>(_events, value);
         }
         
-        NotifyStateChanged(newInnerStateValue);
+        NotifyStateChanged(newStateProperty);
         
-        return newInnerStateValue;
+        return newStateProperty;
     }
 
-    public Task<IInnerStateValue<TValue>> SetValueAsync(TValue value)
+    public Task<IStateProperty<TValue>> SetValueAsync(TValue value)
     {
         var newStateValue = SetValue(value);
         return Task.FromResult(newStateValue);
     }
 
-    public void OnChange(Action<IInnerStateValue<TValue>, IInnerStateValue<TValue>> handler)
+    public void OnChange(Action<IStateProperty<TValue>, IStateProperty<TValue>> handler)
     {
         _events.OnChange += handler;
     }
 
-    public virtual bool Equals(InnerStateValue<TValue>? other)
+    public virtual bool Equals(StateProperty<TValue>? other)
     {
         if (other == null)
         {
@@ -86,16 +86,16 @@ public record InnerStateValue<TValue> : IInnerStateValue<TValue>
         return Value?.GetHashCode() ?? typeof(TValue).GetHashCode();
     }
 
-    private void NotifyStateChanged(IInnerStateValue<TValue> newInnerStateValue)
+    private void NotifyStateChanged(IStateProperty<TValue> newStateProperty)
     {
-        _events.InvokeOnChange(newInnerStateValue, this);
+        _events.InvokeOnChange(newStateProperty, this);
     }
     
     private class StateValueEventWrapper
     {
-        public event Action<IInnerStateValue<TValue>, IInnerStateValue<TValue>>? OnChange;
+        public event Action<IStateProperty<TValue>, IStateProperty<TValue>>? OnChange;
 
-        internal void InvokeOnChange(IInnerStateValue<TValue> newInnerState, IInnerStateValue<TValue> oldInnerState)
-            => OnChange?.Invoke(newInnerState, oldInnerState);
+        internal void InvokeOnChange(IStateProperty<TValue> newState, IStateProperty<TValue> oldState)
+            => OnChange?.Invoke(newState, oldState);
     }
 }

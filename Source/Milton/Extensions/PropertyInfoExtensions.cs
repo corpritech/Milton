@@ -5,13 +5,13 @@ namespace Milton.Extensions;
 
 public static class PropertyInfoExtensions
 {
-    public static bool IsInnerStateValue(this PropertyInfo propertyInfo)
+    public static bool IsStateProperty(this PropertyInfo propertyInfo)
         => propertyInfo.GetSetMethod() != null && 
            propertyInfo.GetGetMethod() != null &&
            propertyInfo.PropertyType.IsInterface &&
            propertyInfo.PropertyType.IsGenericType &&
            propertyInfo.PropertyType.GetGenericArguments().Length == 1 &&
-           propertyInfo.PropertyType.IsAssignableFrom(typeof(IInnerStateValue<>).MakeGenericType(propertyInfo.PropertyType.GetGenericArguments()[0]));
+           propertyInfo.PropertyType.IsAssignableFrom(typeof(IStateProperty<>).MakeGenericType(propertyInfo.PropertyType.GetGenericArguments()[0]));
 
     public static bool IsState(this PropertyInfo propertyInfo)
         => propertyInfo.GetSetMethod() != null &&

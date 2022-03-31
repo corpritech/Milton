@@ -63,14 +63,14 @@ public class StateTests
 
     private class MockState1
     {
-        public IInnerStateValue<string> TestProperty1 { get; set; } = new InnerStateValue<string>("");
-        public IInnerStateValue<string> TestProperty2 { get; set; } = null!;
+        public IStateProperty<string> TestProperty1 { get; set; } = new StateProperty<string>("");
+        public IStateProperty<string> TestProperty2 { get; set; } = null!;
         public IState<MockState2> InnerState1 { get; set; } = new State<MockState2>(new MockState2());
         public IState<MockState2> InnerState2 { get; set; } = null!;
     }
 
     private class MockState2
     {
-        public IInnerStateValue<int> TestProperty { get; set; } = new InnerStateValue<int>(0);
+        public IStateProperty<int> TestProperty { get; set; } = new StateProperty<int>(0);
     }
 }

@@ -27,7 +27,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
     private void SubscribeToStateValues()
     {
         var innerStateType = typeof(TInnerState);
-        var properties = innerStateType.GetProperties().Where(x => x.IsInnerStateValue());
+        var properties = innerStateType.GetProperties().Where(x => x.IsStateProperty());
         
         foreach (var property in properties)
         {
@@ -38,7 +38,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
                 continue;
             }
 
-            var onChangeEventMethod = propertyValue.GetType().GetMethod(nameof(IInnerStateValue<object>.OnChange));
+            var onChangeEventMethod = propertyValue.GetType().GetMethod(nameof(IStateProperty<object>.OnChange));
             var onChangeEventHandler = GetType()
                 .GetMethod(nameof(HandleInnerStateValueChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
                 .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0]);
@@ -72,7 +72,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
         }
     }
 
-    private void HandleInnerStateValueChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IInnerStateValue<TValue>
+    private void HandleInnerStateValueChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IStateProperty<TValue>
     {
         lock (_stateUpdateLock)
         {

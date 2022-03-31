@@ -30,40 +30,40 @@ public class StateFactory : IStateFactory
 
         ThrowIfTypeDefault(innerStateType, innerState);
 
-        var valueProperties = GetInnerStateValueProperties(innerStateType);
-        var stateProperties = GetStateProperties(innerStateType);
+        var valueProperties = GetStateProperties(innerStateType);
+        var stateProperties = GetNestedStateProperties(innerStateType);
 
-        AssignInnerStateValueProperties(innerState, valueProperties);
-        AssignStateProperties(innerState, stateProperties);
+        AssignStateProperties(innerState, valueProperties);
+        AssignNestedStates(innerState, stateProperties);
         
         return innerState;
     }
 
-    public IInnerStateValue<TValue> CreateInnerStateValue<TValue>(TValue? initialValue)
+    public IStateProperty<TValue> CreateStateProperty<TValue>(TValue? initialValue)
     {
-        var innerStateValueType = typeof(InnerStateValue<TValue>);
-        var innerStateValue = Activator.CreateInstance(innerStateValueType, new object?[] {initialValue}) as IInnerStateValue<TValue>;
+        var innerStateValueType = typeof(StateProperty<TValue>);
+        var stateProperty = Activator.CreateInstance(innerStateValueType, new object?[] {initialValue}) as IStateProperty<TValue>;
         
-        ThrowIfTypeDefault(typeof(TValue), innerStateValue);
+        ThrowIfTypeDefault(typeof(TValue), stateProperty);
 
-        return innerStateValue;
+        return stateProperty!;
     }
 
-    protected IEnumerable<PropertyInfo> GetInnerStateValueProperties(Type type)
+    protected IEnumerable<PropertyInfo> GetStateProperties(Type type)
         => type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .Where(x => x.IsInnerStateValue());
+            .Where(x => x.IsStateProperty());
     
-    protected IEnumerable<PropertyInfo> GetStateProperties(Type type)
+    protected IEnumerable<PropertyInfo> GetNestedStateProperties(Type type)
         => type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .Where(x => x.IsState());
 
-    protected void AssignInnerStateValueProperties(object innerState, IEnumerable<PropertyInfo> valueProperties)
+    protected void AssignStateProperties(object innerState, IEnumerable<PropertyInfo> valueProperties)
     {
         foreach (var property in valueProperties)
         {
-            if (!CanAssignInnerStateValueProperty(innerState, property))
+            if (!CanAssignStateProperty(innerState, property))
             {
                 continue;
             }
@@ -71,20 +71,20 @@ public class StateFactory : IStateFactory
             var initialValue = property.GetCustomAttribute<InitialValueAttribute>()?.Value ?? default;
             
             property.SetValue(innerState, GetType()
-                .GetMethod(nameof(CreateInnerStateValue))!
+                .GetMethod(nameof(CreateStateProperty))!
                 .MakeGenericMethod(property.PropertyType.GetGenericArguments()[0])
                 .Invoke(this, new object?[] {initialValue}));
         }
     }
 
-    protected bool CanAssignInnerStateValueProperty(object innerState, PropertyInfo valueProperty)
+    protected bool CanAssignStateProperty(object innerState, PropertyInfo valueProperty)
         => valueProperty.GetValue(innerState) == default;
 
-    protected void AssignStateProperties(object innerState, IEnumerable<PropertyInfo> stateProperties)
+    protected void AssignNestedStates(object innerState, IEnumerable<PropertyInfo> stateProperties)
     {
         foreach (var property in stateProperties)
         {
-            if (!CanAssignStateProperty(innerState, property))
+            if (!CanAssignNestedState(innerState, property))
             {
                 continue;
             }
@@ -96,7 +96,7 @@ public class StateFactory : IStateFactory
         }
     }
     
-    protected bool CanAssignStateProperty(object innerState, PropertyInfo stateProperty)
+    protected bool CanAssignNestedState(object innerState, PropertyInfo stateProperty)
         => stateProperty.GetValue(innerState) == default;
     
     protected static void ThrowIfTypeDefault(Type type, object? o)
