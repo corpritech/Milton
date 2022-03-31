@@ -3,21 +3,21 @@ using Xunit;
 
 namespace Milton.Tests;
 
-public class StateContainerFactoryTests
+public class StateFactoryTests
 {
     [Fact]
-    public void StateContainerFactoryCanBeInstantiated()
+    public void StateFactoryCanBeInstantiated()
     {
-        var stateContainerFactory = new StateContainerFactory();
+        var stateContainerFactory = new StateFactory();
         
         Assert.NotNull(stateContainerFactory);
     }
 
     [Fact]
-    public void StateContainerFactoryGeneratesAccurateStateContainer()
+    public void StateFactoryGeneratesAccurateStateContainer()
     {
-        var stateContainerFactory = new StateContainerFactory();
-        var stateContainer = stateContainerFactory.CreateStateContainer<MockState>();
+        var stateContainerFactory = new StateFactory();
+        var stateContainer = stateContainerFactory.CreateState<MockState1>();
         
         Assert.NotNull(stateContainer.CurrentState);
         Assert.Null(stateContainer.PreviousState);
@@ -35,18 +35,18 @@ public class StateContainerFactoryTests
         Assert.Equal(0, stateContainer.CurrentState.InnerState2.CurrentState.TestProperty.Value);
     }
     
-    private class MockState
+    private class MockState1
     {
-        public IStateValue<string> TestProperty1 { get; set; } = new StateValue<string>("");
+        public IInnerStateValue<string> TestProperty1 { get; set; } = new InnerStateValue<string>("");
         [InitialValue("milton")]
-        public IStateValue<string> TestProperty2 { get; set; } = null!;
-        public IStateContainer<InnerMockState> InnerState1 { get; set; } = new StateContainer<InnerMockState>(new InnerMockState());
-        public IStateContainer<InnerMockState> InnerState2 { get; set; } = null!;
+        public IInnerStateValue<string> TestProperty2 { get; set; } = null!;
+        public IState<MockState2> InnerState1 { get; set; } = new State<MockState2>(new MockState2());
+        public IState<MockState2> InnerState2 { get; set; } = null!;
     }
 
-    private class InnerMockState
+    private class MockState2
     {
         [InitialValue(0)] 
-        public IStateValue<int> TestProperty { get; set; } = null!;
+        public IInnerStateValue<int> TestProperty { get; set; } = null!;
     }
 }

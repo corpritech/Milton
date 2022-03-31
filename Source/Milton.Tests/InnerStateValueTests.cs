@@ -5,25 +5,25 @@ using Xunit;
 
 namespace Milton.Tests;
 
-public class StateValueTests
+public class InnerStateValueTests
 {
     [Theory]
     [ClassData(typeof(MockData))]
-    public void StateValueCanBeInstantiated(object value)
+    public void InnerStateValueCanBeInstantiated(object value)
     {
-        var stateValueType = typeof(StateValue<>).MakeGenericType(value.GetType());
+        var stateValueType = typeof(InnerStateValue<>).MakeGenericType(value.GetType());
         var stateValue = Activator.CreateInstance(stateValueType, value);
 
         Assert.NotNull(stateValue);
     }
 
     [Fact]
-    public async Task SetValueAsyncReturnAccurateStateValue()
+    public async Task InnerSetValueAsyncReturnAccurateStateValue()
     {
         const string value = "";
         const string newValue = "milton";
 
-        var stateValue = new StateValue<string>(value);
+        var stateValue = new InnerStateValue<string>(value);
         var newStateValue = await stateValue.SetValueAsync(newValue);
 
         Assert.False(ReferenceEquals(stateValue, newStateValue));
@@ -32,13 +32,13 @@ public class StateValueTests
     }
 
     [Fact]
-    public async Task SetValueAsyncNotifiesHandlers()
+    public async Task InnerSetValueAsyncNotifiesHandlers()
     {
         const string value = "";
         const string newValue = "milton";
 
         var handlerWasInvoked = false;
-        var stateValue = new StateValue<string>(value);
+        var stateValue = new InnerStateValue<string>(value);
 
         stateValue.OnChange((_, _) => handlerWasInvoked = true);
         _ = await stateValue.SetValueAsync(newValue);
@@ -47,16 +47,16 @@ public class StateValueTests
     }
 
     [Fact]
-    public async Task SetValueAsyncEmitsAccurateEventData()
+    public async Task InnerSetValueAsyncEmitsAccurateEventData()
     {
         const string value = "";
         const string newValue = "milton";
 
         var handlerWasInvoked = false;
-        var stateValue = new StateValue<string>(value);
+        var stateValue = new InnerStateValue<string>(value);
 
-        IStateValue<string>? emittedNewState = null;
-        IStateValue<string>? emittedOldState = null;
+        IInnerStateValue<string>? emittedNewState = null;
+        IInnerStateValue<string>? emittedOldState = null;
 
         stateValue.OnChange((newStateValue, oldStateValue) =>
         {
@@ -75,10 +75,10 @@ public class StateValueTests
     }
     
     [Fact]
-    public async Task SetValueAsyncHonorsCloneableValueObjects()
+    public async Task InnerSetValueAsyncHonorsCloneableValueObjects()
     {
         var value = new MockCloneableValueObject("");
-        var stateValue = new StateValue<MockCloneableValueObject>(value) as IStateValue<MockCloneableValueObject>;
+        var stateValue = new InnerStateValue<MockCloneableValueObject>(value) as IInnerStateValue<MockCloneableValueObject>;
         
         stateValue = await stateValue.SetValueAsync(stateValue.Value);
         
@@ -86,93 +86,93 @@ public class StateValueTests
     }
     
     [Fact]
-    public async Task SetValueAsyncWorksWithNonCloneableValueObjects()
+    public async Task InnerSetValueAsyncWorksWithNonCloneableValueObjects()
     {
         var value = new MockValueObject("");
-        var stateValue = new StateValue<MockValueObject>(value) as IStateValue<MockValueObject>;
+        var stateValue = new InnerStateValue<MockValueObject>(value) as IInnerStateValue<MockValueObject>;
         var newStateValue = await stateValue.SetValueAsync(stateValue.Value);
         
         Assert.True(ReferenceEquals(stateValue.Value, newStateValue.Value));
     }
 
     [Fact]
-    public void StateValuesWithTheSameValueAreEqual()
+    public void InnerStateValuesWithTheSameValueAreEqual()
     {
         const string value = "milton";
 
-        var stateValue1 = new StateValue<string>(value);
-        var stateValue2 = new StateValue<string>(value);
+        var stateValue1 = new InnerStateValue<string>(value);
+        var stateValue2 = new InnerStateValue<string>(value);
 
         Assert.True(stateValue1.Equals(stateValue2));
     }
 
     [Fact]
-    public void StateValuesWithDifferentValuesAreNotEqual()
+    public void InnerStateValuesWithDifferentValuesAreNotEqual()
     {
         const string value1 = "";
         const string value2 = "milton";
 
-        var stateValue1 = new StateValue<string>(value1);
-        var stateValue2 = new StateValue<string>(value2);
+        var stateValue1 = new InnerStateValue<string>(value1);
+        var stateValue2 = new InnerStateValue<string>(value2);
 
         Assert.False(stateValue1.Equals(stateValue2));
     }
 
     [Fact]
-    public void StateValuesWithNullValuesAreEqual()
+    public void InnerStateValuesWithNullValuesAreEqual()
     {
-        var stateValue1 = new StateValue<string>(null);
-        var stateValue2 = new StateValue<string>(null);
+        var stateValue1 = new InnerStateValue<string>(null);
+        var stateValue2 = new InnerStateValue<string>(null);
 
         Assert.True(stateValue1.Equals(stateValue2));
     }
 
     [Fact]
-    public void StateValuesWithDifferentNullValuesAreNotEqual()
+    public void InnerStateValuesWithDifferentNullValuesAreNotEqual()
     {
-        var stateValue1 = new StateValue<string>("");
-        var stateValue2 = new StateValue<string>(null);
+        var stateValue1 = new InnerStateValue<string>("");
+        var stateValue2 = new InnerStateValue<string>(null);
 
         Assert.False(stateValue1.Equals(stateValue2));
     }
 
     [Fact]
-    public void StateValuesWithTheSameValueHaveTheSameHashCode()
+    public void InnerStateValuesWithTheSameValueHaveTheSameHashCode()
     {
         const string value = "milton";
 
-        var stateValue1 = new StateValue<string>(value);
-        var stateValue2 = new StateValue<string>(value);
+        var stateValue1 = new InnerStateValue<string>(value);
+        var stateValue2 = new InnerStateValue<string>(value);
 
         Assert.Equal(stateValue1.GetHashCode(), stateValue2.GetHashCode());
     }
 
     [Fact]
-    public void StateValuesWithDifferentValuesHaveDifferentHashCodes()
+    public void InnerStateValuesWithDifferentValuesHaveDifferentHashCodes()
     {
         const string value1 = "";
         const string value2 = "milton";
 
-        var stateValue1 = new StateValue<string>(value1);
-        var stateValue2 = new StateValue<string>(value2);
+        var stateValue1 = new InnerStateValue<string>(value1);
+        var stateValue2 = new InnerStateValue<string>(value2);
 
         Assert.NotEqual(stateValue1.GetHashCode(), stateValue2.GetHashCode());
     }
 
     [Fact]
-    public void StateValuesWithNullValuesHaveTheSameHashCode()
+    public void InnerStateValuesWithNullValuesHaveTheSameHashCode()
     {
-        var stateValue1 = new StateValue<string>(null);
-        var stateValue2 = new StateValue<string>(null);
+        var stateValue1 = new InnerStateValue<string>(null);
+        var stateValue2 = new InnerStateValue<string>(null);
 
         Assert.Equal(stateValue1.GetHashCode(), stateValue2.GetHashCode());
     }
 
     [Fact]
-    public void StateValuesWithDifferentNullValuesHaveDifferentHashCodes()
+    public void InnerStateValuesWithDifferentNullValuesHaveDifferentHashCodes()
     {
-        var stateValue1 = new StateValue<string>("");
-        var stateValue2 = new StateValue<string>(null);
+        var stateValue1 = new InnerStateValue<string>("");
+        var stateValue2 = new InnerStateValue<string>(null);
 
         Assert.NotEqual(stateValue1.GetHashCode(), stateValue2.GetHashCode());
     }
