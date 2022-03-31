@@ -19,20 +19,18 @@ public class StateFactoryTests
         var stateContainerFactory = new StateFactory();
         var stateContainer = stateContainerFactory.CreateState<MockState1>();
         
-        Assert.NotNull(stateContainer.CurrentState);
-        Assert.Null(stateContainer.PreviousState);
-        Assert.NotNull(stateContainer.CurrentState.TestProperty1);
-        Assert.NotNull(stateContainer.CurrentState.TestProperty1.Value);
-        Assert.Equal("", stateContainer.CurrentState.TestProperty1.Value);
-        Assert.NotNull(stateContainer.CurrentState.TestProperty2);
-        Assert.NotNull(stateContainer.CurrentState.TestProperty2.Value);
-        Assert.Equal("milton", stateContainer.CurrentState.TestProperty2.Value);
-        Assert.NotNull(stateContainer.CurrentState.InnerState1);
-        Assert.NotNull(stateContainer.CurrentState.InnerState1.CurrentState);
-        Assert.Null(stateContainer.CurrentState.InnerState1.PreviousState);
-        Assert.Null(stateContainer.CurrentState.InnerState1.CurrentState.TestProperty);
-        Assert.NotNull(stateContainer.CurrentState.InnerState2);
-        Assert.Equal(0, stateContainer.CurrentState.InnerState2.CurrentState.TestProperty.Value);
+        Assert.NotNull(stateContainer.Properties);
+        Assert.NotNull(stateContainer.Properties.TestProperty1);
+        Assert.NotNull(stateContainer.Properties.TestProperty1.Value);
+        Assert.Equal("", stateContainer.Properties.TestProperty1.Value);
+        Assert.NotNull(stateContainer.Properties.TestProperty2);
+        Assert.NotNull(stateContainer.Properties.TestProperty2.Value);
+        Assert.Equal("milton", stateContainer.Properties.TestProperty2.Value);
+        Assert.NotNull(stateContainer.Properties.InnerState1);
+        Assert.NotNull(stateContainer.Properties.InnerState1.Properties);
+        Assert.Null(stateContainer.Properties.InnerState1.Properties.TestProperty);
+        Assert.NotNull(stateContainer.Properties.InnerState2);
+        Assert.Equal(0, stateContainer.Properties.InnerState2.Properties.TestProperty.Value);
     }
     
     private class MockState1

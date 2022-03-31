@@ -6,8 +6,7 @@ namespace Milton;
 
 public class State<TInnerState> : IState<TInnerState> where TInnerState : class
 {
-    public TInnerState CurrentState { get; private set; }
-    public TInnerState? PreviousState { get; private set; }
+    public TInnerState Properties { get; private set; }
 
     private event Action<IState<TInnerState>>? _onChange; 
     
@@ -15,7 +14,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
 
     public State(TInnerState state)
     {
-        CurrentState = state;
+        Properties = state;
         
         SubscribeToStateValues();
         SubscribeToStates();
@@ -31,7 +30,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
         
         foreach (var property in properties)
         {
-            var propertyValue = property.GetValue(CurrentState);
+            var propertyValue = property.GetValue(Properties);
             
             if (propertyValue == default)
             {
@@ -55,7 +54,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
 
         foreach (var property in properties)
         {
-            var propertyValue = property.GetValue(CurrentState);
+            var propertyValue = property.GetValue(Properties);
             
             if (propertyValue == default)
             {
@@ -78,20 +77,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
         {
             var property = typeof(TInnerState)
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .FirstOrDefault(x => 
-                {
-                    if (ReferenceEquals(x.GetValue(CurrentState), oldValue))
-                    {
-                        return true;
-                    }
-
-                    if (ReferenceEquals(x.GetValue(PreviousState), oldValue))
-                    {
-                        throw new InvalidOperationException("Previous state cannot be changed.");
-                    }
-
-                    return false;
-                });
+                .FirstOrDefault(x => ReferenceEquals(x.GetValue(Properties), oldValue));
 
            if (property == null)
            {
@@ -103,8 +89,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
            
            property.SetValue(newState, newValue);
 
-           PreviousState = CurrentState;
-           CurrentState = newState;
+           Properties = newState;
         }
         
         NotifyStateChanged();
@@ -122,7 +107,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
         
         foreach (var property in properties)
         {
-            property.SetValue(newState, property.GetValue(CurrentState));
+            property.SetValue(newState, property.GetValue(Properties));
         }
 
         return newState;

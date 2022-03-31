@@ -12,18 +12,10 @@ public class StateTests
         var state = new State<MockState1>(mockState);
         
         Assert.NotNull(state);
-        Assert.NotNull(state.CurrentState);
-        Assert.True(ReferenceEquals(mockState, state.CurrentState));
+        Assert.NotNull(state.Properties);
+        Assert.True(ReferenceEquals(mockState, state.Properties));
     }
-
-    [Fact]
-    public void StatePreviousStateIsInitiallyNull()
-    {
-        var state = new State<MockState1>(new MockState1());
-        
-        Assert.Null(state.PreviousState);
-    }
-
+    
     [Fact]
     public void StateEmitsEventWhenStateValuesUpdate()
     {
@@ -31,7 +23,7 @@ public class StateTests
         var emittedEvent = false;
         
         state.OnChange(_ => emittedEvent = true);
-        state.CurrentState.TestProperty1.SetValue("milton");
+        state.Properties.TestProperty1.SetValue("milton");
         
         Assert.True(emittedEvent);
     }
@@ -43,22 +35,9 @@ public class StateTests
         var emittedEvent = false;
         
         state.OnChange(_ => emittedEvent = true);
-        state.CurrentState.InnerState1.CurrentState.TestProperty.SetValue(1);
+        state.Properties.InnerState1.Properties.TestProperty.SetValue(1);
         
         Assert.True(emittedEvent);
-    }
-
-    [Fact]
-    public void StateRotatesCurrentStateToPreviousStateOnValueChanges()
-    {
-        var state = new State<MockState1>(new MockState1());
-        
-        state.CurrentState.TestProperty1.SetValue("milton");
-        
-        Assert.NotNull(state.PreviousState);
-        Assert.False(ReferenceEquals(state.CurrentState, state.PreviousState));
-        Assert.Equal("", state.PreviousState!.TestProperty1.Value);
-        Assert.Equal("milton", state.CurrentState.TestProperty1.Value);
     }
 
     private class MockState1

@@ -4,8 +4,7 @@ namespace Milton.Extensions.Microsoft.DependencyInjection;
 
 public class StateProxy<TInnerState> : IState<TInnerState> where TInnerState : class
 {
-    public TInnerState CurrentState => _state.CurrentState;
-    public TInnerState? PreviousState => _state.PreviousState;
+    public TInnerState Properties => _state.Properties;
 
     private readonly IState<TInnerState> _state;
 
