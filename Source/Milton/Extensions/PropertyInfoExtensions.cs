@@ -3,9 +3,9 @@ using Milton.Abstractions;
 
 namespace Milton.Extensions;
 
-internal static class PropertyInfoExtensions
+public static class PropertyInfoExtensions
 {
-    internal static bool IsInnerStateValue(this PropertyInfo propertyInfo)
+    public static bool IsInnerStateValue(this PropertyInfo propertyInfo)
         => propertyInfo.GetSetMethod() != null && 
            propertyInfo.GetGetMethod() != null &&
            propertyInfo.PropertyType.IsInterface &&
@@ -13,7 +13,7 @@ internal static class PropertyInfoExtensions
            propertyInfo.PropertyType.GetGenericArguments().Length == 1 &&
            propertyInfo.PropertyType.IsAssignableFrom(typeof(IInnerStateValue<>).MakeGenericType(propertyInfo.PropertyType.GetGenericArguments()[0]));
 
-    internal static bool IsState(this PropertyInfo propertyInfo)
+    public static bool IsState(this PropertyInfo propertyInfo)
         => propertyInfo.GetSetMethod() != null &&
            propertyInfo.GetGetMethod() != null &&
            propertyInfo.PropertyType.IsInterface &&
