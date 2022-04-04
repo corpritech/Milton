@@ -4,52 +4,29 @@ namespace Milton;
 
 public record StateProperty<TValue> : IStateProperty<TValue>
 {
-    public TValue Value { get; }
-    
-    private bool _changed;
-    
-    private readonly StateValueEventWrapper _events;
+    public TValue Value
+    {
+        get => _value;
+        set => SetValue(value);
+    }
+    public bool HasChanged { get; private set; }
+
+    private readonly TValue _value;
+    private readonly StatePropertyEvents _events;
     private readonly object _setValueLock = new();
 
     public StateProperty(TValue value)
     {
-        Value = value;
-        _events = new StateValueEventWrapper();
+        _value = value;
+        _events = new StatePropertyEvents();
     }
     
-    private StateProperty(StateValueEventWrapper events, TValue value)
+    private StateProperty(StatePropertyEvents events, TValue value)
     {
-        Value = value;
+        _value = value;
         _events = events;
     }
-
-    public IStateProperty<TValue> SetValue(TValue value)
-    {
-        lock (_setValueLock)
-        {
-            if (_changed)
-            {
-                throw new InvalidOperationException("State value has already changed.");
-            }
-            _changed = true;
-        }
-        
-        IStateProperty<TValue> newStateProperty;
-
-        if (value is ICloneable cloneableValue)
-        {
-            newStateProperty = new StateProperty<TValue>(_events, (TValue) cloneableValue.Clone());
-        }
-        else
-        {
-            newStateProperty = new StateProperty<TValue>(_events, value);
-        }
-        
-        NotifyStateChanged(newStateProperty);
-        
-        return newStateProperty;
-    }
-
+    
     public Task<IStateProperty<TValue>> SetValueAsync(TValue value)
     {
         var newStateValue = SetValue(value);
@@ -85,13 +62,41 @@ public record StateProperty<TValue> : IStateProperty<TValue>
     {
         return Value?.GetHashCode() ?? typeof(TValue).GetHashCode();
     }
+    
+    private IStateProperty<TValue> SetValue(TValue value)
+    {
+        lock (_setValueLock)
+        {
+            if (HasChanged)
+            {
+                throw new InvalidOperationException("State value has already changed.");
+            }
+            HasChanged = true;
+        }
+        
+        IStateProperty<TValue> newStateProperty;
+
+        if (value is ICloneable cloneableValue)
+        {
+            newStateProperty = new StateProperty<TValue>(_events, (TValue) cloneableValue.Clone());
+        }
+        else
+        {
+            newStateProperty = new StateProperty<TValue>(_events, value);
+        }
+        
+        NotifyStateChanged(newStateProperty);
+        
+        return newStateProperty;
+    }
+
 
     private void NotifyStateChanged(IStateProperty<TValue> newStateProperty)
     {
         _events.InvokeOnChange(newStateProperty, this);
     }
     
-    private class StateValueEventWrapper
+    private class StatePropertyEvents
     {
         public event Action<IStateProperty<TValue>, IStateProperty<TValue>>? OnChange;
 

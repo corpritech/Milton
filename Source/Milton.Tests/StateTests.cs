@@ -23,7 +23,7 @@ public class StateTests
         var emittedEvent = false;
         
         state.OnChange(_ => emittedEvent = true);
-        state.Properties.TestProperty1.SetValue("milton");
+        state.Properties.TestProperty1.Value = "milton";
         
         Assert.True(emittedEvent);
     }
@@ -35,7 +35,7 @@ public class StateTests
         var emittedEvent = false;
         
         state.OnChange(_ => emittedEvent = true);
-        state.Properties.InnerState1.Properties.TestProperty.SetValue(1);
+        state.Properties.InnerState1.Properties.TestProperty.Value = 1;
         
         Assert.True(emittedEvent);
     }
