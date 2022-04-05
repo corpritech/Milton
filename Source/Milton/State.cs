@@ -39,7 +39,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
 
             var onChangeEventMethod = propertyValue.GetType().GetMethod(nameof(IStateProperty<object>.OnChange));
             var onChangeEventHandler = GetType()
-                .GetMethod(nameof(HandleInnerStateValueChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetMethod(nameof(HandleInnerStatePropertyChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
                 .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0]);
             var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
             
@@ -71,7 +71,7 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
         }
     }
 
-    private void HandleInnerStateValueChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IStateProperty<TValue>
+    private void HandleInnerStatePropertyChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IStateProperty<TValue>
     {
         lock (_stateUpdateLock)
         {
@@ -85,11 +85,11 @@ public class State<TInnerState> : IState<TInnerState> where TInnerState : class
                throw new InvalidOperationException("Failed to update state. The property could not be found.");
            }
 
-           var newState = CloneState();
+           var newInnerState = CloneState();
            
-           property.SetValue(newState, newValue);
+           property.SetValue(newInnerState, newValue);
 
-           Properties = newState;
+           Properties = newInnerState;
         }
         
         NotifyStateChanged();

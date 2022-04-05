@@ -9,7 +9,7 @@ public record StateProperty<TValue> : IStateProperty<TValue>
         get => _value;
         set => SetValue(value);
     }
-    public bool HasChanged { get; private set; }
+    public bool IsLatestRevision { get; private set; } = true;
 
     private readonly TValue _value;
     private readonly StatePropertyEvents _events;
@@ -67,11 +67,11 @@ public record StateProperty<TValue> : IStateProperty<TValue>
     {
         lock (_setValueLock)
         {
-            if (HasChanged)
+            if (!IsLatestRevision)
             {
-                throw new InvalidOperationException("State value has already changed.");
+                throw new InvalidOperationException("Cannot set value on past revision.");
             }
-            HasChanged = true;
+            IsLatestRevision = false;
         }
         
         IStateProperty<TValue> newStateProperty;
