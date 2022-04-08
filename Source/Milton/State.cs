@@ -8,11 +8,11 @@ namespace Milton;
 
 public class State<TState> : IState<TState> where TState : class
 {
-    public TState CurrentState { get; private set; }
+    public TState CurrentState { get; protected set; }
+    
+    protected readonly ReadOnlyDictionary<int, object> StateProperties;
 
     private event Action<IState<TState>>? _onChange;
-    
-    private readonly ReadOnlyDictionary<int, object> _stateProperties;
 
     public State()
     {
@@ -23,7 +23,7 @@ public class State<TState> : IState<TState> where TState : class
         
         CurrentState = Activator.CreateInstance<TState>();
         
-        _stateProperties = BuildStatePropertyDictionary();
+        StateProperties = BuildStatePropertyDictionary();
     }
 
     public State(TState initialState)
@@ -35,7 +35,7 @@ public class State<TState> : IState<TState> where TState : class
         
         CurrentState = initialState;
         
-        _stateProperties = BuildStatePropertyDictionary();
+        StateProperties = BuildStatePropertyDictionary();
     }
 
     public Task UpdateAsync<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, TProperty value)
@@ -71,12 +71,12 @@ public class State<TState> : IState<TState> where TState : class
     {
         var member = (MemberExpression) propertyExpression.Body;
         var propertyInfo = (PropertyInfo) member.Member;
-        var property = _stateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>;
+        var property = StateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>;
         
         property!.OnChange += onChangeAction;
     }
 
-    private ReadOnlyDictionary<int, object> BuildStatePropertyDictionary()
+    protected ReadOnlyDictionary<int, object> BuildStatePropertyDictionary()
     {
         var dictionary = new Dictionary<int, object>();
         
@@ -90,17 +90,17 @@ public class State<TState> : IState<TState> where TState : class
         return new ReadOnlyDictionary<int, object>(dictionary);
     }
 
-    private void UpdateProperty<TProperty>(PropertyInfo propertyInfo, TState state, TProperty value)
+    protected void UpdateProperty<TProperty>(PropertyInfo propertyInfo, TState state, TProperty value)
     {
         if (!propertyInfo.IsStateProperty())
         {
             throw new ArgumentException("Property specified is not a valid state property.", nameof(propertyInfo));
         }
         
-        (_stateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>)!.UpdateValue(state, value);
+        (StateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>)!.UpdateValue(state, value);
     }
 
-    private TState CloneState()
+    protected TState CloneState()
     {
         TState nextState;
 
@@ -121,12 +121,12 @@ public class State<TState> : IState<TState> where TState : class
         return nextState;
     }
 
-    private IEnumerable<PropertyInfo> GetStateProperties()
+    protected IEnumerable<PropertyInfo> GetStateProperties()
         => typeof(TState).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.IsStateProperty());
 
-    private void NotifyStateChanged() => _onChange?.Invoke(this);
+    protected void NotifyStateChanged() => _onChange?.Invoke(this);
 
-    private class StateProperty<TProperty>
+    protected class StateProperty<TProperty>
     {
         public event Action<TProperty, TProperty>? OnChange;
         
