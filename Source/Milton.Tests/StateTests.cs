@@ -1,4 +1,4 @@
-﻿using Milton.Abstractions;
+﻿using System;
 using Xunit;
 
 namespace Milton.Tests;
@@ -8,48 +8,157 @@ public class StateTests
     [Fact]
     public void StateCanBeInstantiated()
     {
-        var mockState = new MockState1();
-        var state = new State<MockState1>(mockState);
+        var state = new State<MockState>();
         
         Assert.NotNull(state);
-        Assert.NotNull(state.Properties);
-        Assert.True(ReferenceEquals(mockState, state.Properties));
+        Assert.NotNull(state.CurrentState);
     }
     
     [Fact]
-    public void StateEmitsEventWhenStateValuesUpdate()
+    public void StateCanBeInstantiatedWithDefinedState()
     {
-        var state = new State<MockState1>(new MockState1());
-        var emittedEvent = false;
+        var mockState = new MockState();
+        var state = new State<MockState>(mockState);
         
-        state.OnChange(_ => emittedEvent = true);
-        state.Properties.TestProperty1.Value = "milton";
-        
-        Assert.True(emittedEvent);
+        Assert.NotNull(state);
+        Assert.NotNull(state.CurrentState);
+        Assert.True(ReferenceEquals(mockState, state.CurrentState));
     }
 
     [Fact]
-    public void StateEmitsEventWhenNestedStatesEmitEvent()
+    public void StateCanBeUpdated()
     {
-        var state = new State<MockState1>(new MockState1());
+        var state = new State<MockState>();
+        const string newStringValue = "Milton";
+
+        state.UpdateAsync(x => x.String, newStringValue);
+        
+        Assert.Equal(newStringValue, state.CurrentState.String);
+    }
+    
+    [Fact]
+    public void StateCanBeUpdatedInBulk()
+    {
+        var state = new State<MockState>();
+        const string newStringValue = "Milton";
+        const int newIntValue = 12345;
+        
+        state.UpdateAsync(x =>
+        {
+            x.Update(s => s.String, newStringValue);
+            x.Update(s => s.Number, newIntValue);
+        });
+        
+        Assert.Equal(newStringValue, state.CurrentState.String);
+        Assert.Equal(newIntValue, state.CurrentState.Number);
+    }
+    
+    [Fact]
+    public void BulkStateUpdatesUseLastPropertyValue()
+    {
+        var state = new State<MockState>();
+        const string newStringValue = "Milton";
+        const string secondNewStringValue = "Box";
+        
+        state.UpdateAsync(x =>
+        {
+            x.Update(s => s.String, newStringValue);
+            x.Update(s => s.String, secondNewStringValue);
+        });
+        
+        Assert.Equal(secondNewStringValue, state.CurrentState.String);
+    }
+
+    [Fact]
+    public void StateIsNotMutatedOnUpdate()
+    {
+        var state = new State<MockState>();
+        var oldState = state.CurrentState;
+        const string newStringValue = "Milton";
+
+        state.UpdateAsync(x => x.String, newStringValue);
+        
+        Assert.False(ReferenceEquals(oldState, state.CurrentState));
+    }
+    
+    [Fact]
+    public void CloneableStatesAreInvokedOnUpdate()
+    {
+        var state = new State<MockCloneableState>();
+        const string newStringValue = "Milton";
+
+        state.UpdateAsync(x => x.String, newStringValue);
+        
+        Assert.True(state.CurrentState.WasCloned);
+    }
+    
+    [Fact]
+    public void StateEmitsOnChangeWhenPropertiesAreUpdated()
+    {
+        var state = new State<MockState>();
         var emittedEvent = false;
         
         state.OnChange(_ => emittedEvent = true);
-        state.Properties.InnerState1.Properties.TestProperty.Value = 1;
+        state.UpdateAsync(x => x.Number, 12345);
         
         Assert.True(emittedEvent);
     }
-
-    private class MockState1
+    
+    [Fact]
+    public void StateOnChangeFiltersEmitWhenSelectedPropertiesAreUpdated()
     {
-        public IStateProperty<string> TestProperty1 { get; set; } = new StateProperty<string>("");
-        public IStateProperty<string> TestProperty2 { get; set; } = null!;
-        public IState<MockState2> InnerState1 { get; set; } = new State<MockState2>(new MockState2());
-        public IState<MockState2> InnerState2 { get; set; } = null!;
+        var state = new State<MockState>();
+        var emittedEvent = false;
+        
+        state.OnChange(x => x.Number, _ => emittedEvent = true);
+        state.UpdateAsync(x => x.Number, 12345);
+        
+        Assert.True(emittedEvent);
+    }
+    
+    [Fact]
+    public void StateOnChangeFiltersDoNotEmitWhenUnselectedPropertiesAreUpdated()
+    {
+        var state = new State<MockState>();
+        var emittedEvent = false;
+        
+        state.OnChange(x => x.String, _ => emittedEvent = true);
+        state.UpdateAsync(x => x.Number, 12345);
+        
+        Assert.False(emittedEvent);
+    }
+    
+    [Fact]
+    public void StateOnChangeEmitsOnceForBulkChanges()
+    {
+        var state = new State<MockState>();
+        var totalOnChangeEmits = 0;
+
+        state.OnChange(_ => totalOnChangeEmits++);
+        state.UpdateAsync(x =>
+        {
+            x.Update(s => s.String, "Milton");
+            x.Update(s => s.Number, 12345);
+        });
+
+        Assert.Equal(1, totalOnChangeEmits);
     }
 
-    private class MockState2
+    private class MockCloneableState : MockState, ICloneable
     {
-        public IStateProperty<int> TestProperty { get; set; } = new StateProperty<int>(0);
+        public bool WasCloned { get; private init; }= false;
+        public object Clone()
+        {
+            return new MockCloneableState()
+            {
+                WasCloned = true
+            };
+        }
+    }
+    
+    private class MockState
+    {
+        public int Number { get; init; } = 0;
+        public string String { get; init; } = "";
     }
 }

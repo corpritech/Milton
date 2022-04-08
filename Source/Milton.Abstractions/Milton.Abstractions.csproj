@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Milton.Abstractions</AssemblyName>
         <RootNamespace>Milton.Abstractions</RootNamespace>
+        <PackageVersion>1.0.0</PackageVersion>
     </PropertyGroup>
 
     <PropertyGroup>

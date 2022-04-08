@@ -1,117 +1,154 @@
-﻿using System.Reflection;
+﻿using System.Collections.ObjectModel;
+using System.Linq.Expressions;
+using System.Reflection;
 using Milton.Abstractions;
 using Milton.Extensions;
 
 namespace Milton;
 
-public class State<TInnerState> : IState<TInnerState> where TInnerState : class
+public class State<TState> : IState<TState> where TState : class
 {
-    public TInnerState Properties { get; private set; }
+    public TState CurrentState { get; private set; }
 
-    private event Action<IState<TInnerState>>? _onChange; 
+    private event Action<IState<TState>>? _onChange;
     
-    private readonly object _stateUpdateLock = new();
+    private readonly ReadOnlyDictionary<int, object> _stateProperties;
 
-    public State(TInnerState state)
+    public State()
     {
-        Properties = state;
+        if (typeof(TState).GetConstructor(Type.EmptyTypes) == null)
+        {
+            throw new ArgumentException("State must have a public parameterless constructor.", nameof(TState));
+        }
         
-        SubscribeToStateValues();
-        SubscribeToStates();
-    }
-    
-    public void OnChange(Action<IState<TInnerState>> handler)
-        => _onChange += handler;
-
-    private void SubscribeToStateValues()
-    {
-        var innerStateType = typeof(TInnerState);
-        var properties = innerStateType.GetProperties().Where(x => x.IsStateProperty());
+        CurrentState = Activator.CreateInstance<TState>();
         
-        foreach (var property in properties)
-        {
-            var propertyValue = property.GetValue(Properties);
-            
-            if (propertyValue == default)
-            {
-                continue;
-            }
-
-            var onChangeEventMethod = propertyValue.GetType().GetMethod(nameof(IStateProperty<object>.OnChange));
-            var onChangeEventHandler = GetType()
-                .GetMethod(nameof(HandleInnerStatePropertyChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
-                .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0]);
-            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
-            
-            onChangeEventMethod.Invoke(propertyValue, new object?[] { onChangeEventDelegate });
-        }
+        _stateProperties = BuildStatePropertyDictionary();
     }
 
-    private void SubscribeToStates()
+    public State(TState initialState)
     {
-        var innerStateType = typeof(TInnerState);
-        var properties = innerStateType.GetProperties().Where(x => x.IsState());
-
-        foreach (var property in properties)
+        if (typeof(TState).GetConstructor(Type.EmptyTypes) == null && initialState is not ICloneable)
         {
-            var propertyValue = property.GetValue(Properties);
-            
-            if (propertyValue == default)
-            {
-                continue;
-            }
-            
-            var onChangeEventMethod = propertyValue.GetType().GetMethod(nameof(IState<object>.OnChange));
-            var onChangeEventHandler = GetType()
-                .GetMethod(nameof(HandleStateContainerChanged), BindingFlags.NonPublic | BindingFlags.Instance)!
-                .MakeGenericMethod(property.PropertyType, property.PropertyType.GetGenericArguments()[0]);
-            var onChangeEventDelegate = Delegate.CreateDelegate(onChangeEventMethod!.GetParameters()[0].ParameterType, this, onChangeEventHandler);
-            
-            onChangeEventMethod.Invoke(propertyValue, new object?[] {onChangeEventDelegate});
+            throw new ArgumentException($"State must have a public parameterless constructor or implement {nameof(ICloneable)}.", nameof(initialState));
         }
+        
+        CurrentState = initialState;
+        
+        _stateProperties = BuildStatePropertyDictionary();
     }
 
-    private void HandleInnerStatePropertyChanged<TStateValue, TValue>(TStateValue newValue, TStateValue oldValue) where TStateValue : IStateProperty<TValue>
+    public Task UpdateAsync<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, TProperty value)
+        => UpdateAsync(builder => builder.Update(propertyExpression, value));
+
+    public Task UpdateAsync(Action<IStateUpdateBuilder<TState>> updateAction)
     {
-        lock (_stateUpdateLock)
+        var builder = new StateUpdateBuilder<TState>();
+
+        updateAction.Invoke(builder);
+
+        var nextState = CloneState();
+
+        foreach (var (propertyInfo, value) in builder.ChangedProperties)
         {
-            var property = typeof(TInnerState)
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .FirstOrDefault(x => ReferenceEquals(x.GetValue(Properties), oldValue));
-
-           if (property == null)
-           {
-               // Somehow the state was updated prior to this call. Possible race condition?
-               throw new InvalidOperationException("Failed to update state. The property could not be found.");
-           }
-
-           var newInnerState = CloneState();
-           
-           property.SetValue(newInnerState, newValue);
-
-           Properties = newInnerState;
+            GetType().GetMethod(nameof(UpdateProperty), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(propertyInfo.PropertyType).Invoke(this, new object?[] {propertyInfo, nextState, value});
         }
+
+        CurrentState = nextState;
         
         NotifyStateChanged();
-    }
-
-    private void HandleStateContainerChanged<TStateContainer, TState1>(TStateContainer _) where TStateContainer : IState<TState1> where TState1 : class
-    {
-        NotifyStateChanged();
-    }
-
-    private TInnerState CloneState()
-    {
-        var properties = typeof(TInnerState).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        var newState = Activator.CreateInstance<TInnerState>();
         
-        foreach (var property in properties)
+        return Task.CompletedTask;
+    }
+    
+    public void OnChange(Action<IState<TState>> onChangeAction)
+        => _onChange += onChangeAction;
+
+    public void OnChange<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, Action<TProperty> onChangeAction)
+        => OnChange(propertyExpression, (newValue, _) => onChangeAction(newValue));
+    
+    public void OnChange<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, Action<TProperty, TProperty> onChangeAction)
+    {
+        var member = (MemberExpression) propertyExpression.Body;
+        var propertyInfo = (PropertyInfo) member.Member;
+        var property = _stateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>;
+        
+        property!.OnChange += onChangeAction;
+    }
+
+    private ReadOnlyDictionary<int, object> BuildStatePropertyDictionary()
+    {
+        var dictionary = new Dictionary<int, object>();
+        
+        foreach (var property in GetStateProperties())
         {
-            property.SetValue(newState, property.GetValue(Properties));
+            var statePropertyType = typeof(State<>.StateProperty<>).MakeGenericType(typeof(TState), property.PropertyType);
+            var stateProperty = Activator.CreateInstance(statePropertyType, new object?[]{property});
+            dictionary.Add(property.MetadataToken, stateProperty ?? throw new Exception($"Failed to construct {nameof(StateProperty<object>)}."));
         }
 
-        return newState;
+        return new ReadOnlyDictionary<int, object>(dictionary);
     }
+
+    private void UpdateProperty<TProperty>(PropertyInfo propertyInfo, TState state, TProperty value)
+    {
+        if (!propertyInfo.IsStateProperty())
+        {
+            throw new ArgumentException("Property specified is not a valid state property.", nameof(propertyInfo));
+        }
+        
+        (_stateProperties[propertyInfo.MetadataToken] as StateProperty<TProperty>)!.UpdateValue(state, value);
+    }
+
+    private TState CloneState()
+    {
+        TState nextState;
+
+        if (CurrentState is ICloneable cloneableState)
+        {
+            nextState = cloneableState.Clone() as TState ?? throw new InvalidCastException($"State clone function did not return a state matching the type of {nameof(TState)}.");
+        }
+        else
+        {
+            nextState = Activator.CreateInstance<TState>();
+            
+            foreach (var property in  GetStateProperties())
+            {
+                property.SetValue(nextState, property.GetValue(CurrentState));
+            }
+        }
+        
+        return nextState;
+    }
+
+    private IEnumerable<PropertyInfo> GetStateProperties()
+        => typeof(TState).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.IsStateProperty());
 
     private void NotifyStateChanged() => _onChange?.Invoke(this);
+
+    private class StateProperty<TProperty>
+    {
+        public event Action<TProperty, TProperty>? OnChange;
+        
+        private readonly PropertyInfo _propertyInfo;
+
+        public StateProperty(PropertyInfo propertyInfo)
+        {
+            _propertyInfo = propertyInfo;
+        }
+
+        public void UpdateValue(TState state, TProperty newValue)
+        {
+            var oldValue = (TProperty) _propertyInfo.GetValue(state)!;
+            
+            _propertyInfo.SetValue(state, newValue);
+            
+            NotifyStateChanged(oldValue, newValue);
+        }
+
+        private void NotifyStateChanged(TProperty newValue, TProperty oldValue)
+        {
+            OnChange?.Invoke(newValue, oldValue);
+        }
+    }
 }

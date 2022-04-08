@@ -7,8 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddState(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton<IStateFactory, StateFactory>();
-        serviceCollection.AddSingleton(typeof(IState<>), typeof(StateProxy<>));
+        serviceCollection.AddSingleton(typeof(IState<>), typeof(State<>));
 
         return serviceCollection;
     }

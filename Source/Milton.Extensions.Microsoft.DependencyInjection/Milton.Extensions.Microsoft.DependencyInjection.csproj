@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Milton.Extensions.Microsoft.DependencyInjection</AssemblyName>
         <RootNamespace>Milton.Extensions.Microsoft.DependencyInjection</RootNamespace>
+        <PackageVersion>1.0.0</PackageVersion>
     </PropertyGroup>
 
     <PropertyGroup>
