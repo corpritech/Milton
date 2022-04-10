@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Milton.Extensions;
+namespace CorpriTech.Milton.Extensions;
 
 public static class PropertyInfoExtensions
 {

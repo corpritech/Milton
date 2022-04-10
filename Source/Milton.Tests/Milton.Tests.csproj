@@ -5,6 +5,10 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <AssemblyName>CorpriTech.Milton.Tests</AssemblyName>
+
+        <RootNamespace>CorpriTech.Milton.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

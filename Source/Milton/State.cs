@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
-using Milton.Abstractions;
-using Milton.Extensions;
+using CorpriTech.Milton.Abstractions;
+using CorpriTech.Milton.Extensions;
 
-namespace Milton;
+namespace CorpriTech.Milton;
 
 public class State<TState> : IState<TState> where TState : class
 {

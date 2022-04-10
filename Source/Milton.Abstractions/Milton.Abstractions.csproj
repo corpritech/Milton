@@ -4,18 +4,22 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>Milton.Abstractions</AssemblyName>
-        <RootNamespace>Milton.Abstractions</RootNamespace>
-        <PackageVersion>1.0.0</PackageVersion>
+        <AssemblyName>CorpriTech.Milton.Abstractions</AssemblyName>
+        <RootNamespace>CorpriTech.Milton.Abstractions</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
-        <PackageId>Milton.Abstractions</PackageId>
-        <Version>1.0.0</Version>
-        <PackageTags>CorpriTech;Milton;State;Container;Abstractions</PackageTags>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <RepositoryType>git</RepositoryType>
+        <PackageId>CorpriTech.Milton.Abstractions</PackageId>
+        <PackageVersion>1.0.0-beta</PackageVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
+        <Authors>CorpriTech</Authors>
+        <PackageTags>CorpriTech;Milton;State;Container;Extensions;Dependency;Injection</PackageTags>
         <RepositoryUrl>https://github.com/corpritech/Milton</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/corpritech/Milton</PackageProjectUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <Description>Abstractions used by Milton. Milton is a state container generator that helps automate the process of creating immutable observable states. Milton is mostly designed to be used in combination with Blazor WASM, however Milton can be used anywhere observable state is required.</Description>
     </PropertyGroup>
-
 </Project>

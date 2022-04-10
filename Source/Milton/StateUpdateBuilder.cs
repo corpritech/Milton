@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
-using Milton.Abstractions;
+using CorpriTech.Milton.Abstractions;
 
-namespace Milton;
+namespace CorpriTech.Milton;
 
 public class StateUpdateBuilder<TInnerState> : IStateUpdateBuilder<TInnerState> where TInnerState : class
 {

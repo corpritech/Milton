@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Milton.Abstractions;
+namespace CorpriTech.Milton.Abstractions;
 
 public interface IState<TInnerState> where TInnerState : class
 {

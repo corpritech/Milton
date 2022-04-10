@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Milton.Tests;
+namespace CorpriTech.Milton.Tests;
 
 public class StateTests
 {
