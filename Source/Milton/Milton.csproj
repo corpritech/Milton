@@ -14,7 +14,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
-        <PackageTags>CorpriTech;Milton;State;Container;Extensions;Dependency;Injection</PackageTags>
+        <PackageTags>CorpriTech;Milton;State Container;Blazor</PackageTags>
         <RepositoryUrl>https://github.com/corpritech/Milton</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageProjectUrl>https://github.com/corpritech/Milton</PackageProjectUrl>
