@@ -6,6 +6,7 @@ using CorpriTech.Milton.Extensions;
 
 namespace CorpriTech.Milton;
 
+/// <inheritdoc cref="IState{TState}"/>
 public class State<TState> : IState<TState> where TState : class
 {
     public TState CurrentState { get; protected set; }
@@ -75,7 +76,7 @@ public class State<TState> : IState<TState> where TState : class
         
         property!.OnChange += onChangeAction;
     }
-
+    
     protected ReadOnlyDictionary<int, object> BuildStatePropertyDictionary()
     {
         var dictionary = new Dictionary<int, object>();
@@ -84,12 +85,12 @@ public class State<TState> : IState<TState> where TState : class
         {
             var statePropertyType = typeof(State<>.StateProperty<>).MakeGenericType(typeof(TState), property.PropertyType);
             var stateProperty = Activator.CreateInstance(statePropertyType, new object?[]{property});
-            dictionary.Add(property.MetadataToken, stateProperty ?? throw new Exception($"Failed to construct {nameof(StateProperty<object>)}."));
+            dictionary.Add(property.MetadataToken, stateProperty ?? throw new InvalidCastException($"Failed to construct {nameof(StateProperty<object>)}."));
         }
 
         return new ReadOnlyDictionary<int, object>(dictionary);
     }
-
+    
     protected void UpdateProperty<TProperty>(PropertyInfo propertyInfo, TState state, TProperty value)
     {
         if (!propertyInfo.IsStateProperty())

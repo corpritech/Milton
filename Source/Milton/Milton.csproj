@@ -10,8 +10,8 @@
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton</PackageId>
-        <PackageVersion>1.0.1-beta</PackageVersion>
-        <PackageReleaseNotes>Fixes for Nuget listing accuracy.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta</PackageVersion>
+        <PackageReleaseNotes>Added code documentation.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
