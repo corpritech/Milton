@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using CorpriTech.Milton.Abstractions;
 
 namespace Microsoft.AspNetCore.Components.Extensions;
@@ -31,10 +32,10 @@ public static class StateExtensions
     /// <param name="state">The state an observer will be added to.</param>
     /// <param name="receiver">The <see cref="IHandleEvent"/> object that will receive the event invocation.</param>
     /// <param name="propertyExpression">The expression identifying which property to observe.</param>
-    /// <param name="onChangeAction">The action to invoke in the event that the property value is updated.</param>
+    /// <param name="onChangeFunc">The <see cref="Func{TResult}"/> to invoke in the event that the property value is updated.</param>
     /// <typeparam name="TState">The state type.</typeparam>
     /// <typeparam name="TProperty">The property type.</typeparam>
     public static void OnChange<TState, TProperty>(this IState<TState> state, IHandleEvent receiver, Expression<Func<TState, TProperty>> propertyExpression,
-        Action<PropertyUpdateEvent<TProperty>> onChangeAction) where TState : class
-        => OnChange(state, propertyExpression, EventCallback.Factory.Create(receiver, onChangeAction));
+        Func<PropertyUpdateEvent<TProperty>, Task> onChangeFunc) where TState : class
+        => OnChange(state, propertyExpression, EventCallback.Factory.Create(receiver, onChangeFunc));
 }
