@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milton.Tests", "Source\Milt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milton.Extensions.Microsoft.DependencyInjection", "Source\Milton.Extensions.Microsoft.DependencyInjection\Milton.Extensions.Microsoft.DependencyInjection.csproj", "{B69B8406-3A60-4312-BEFE-33C5F30FDB0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milton.Extensions.AspNetCore.Components", "Source\Milton.Extensions.AspNetCore.Components\Milton.Extensions.AspNetCore.Components.csproj", "{2779F170-0AEE-495E-B03A-224B6EF00CE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,11 +34,16 @@ Global
 		{B69B8406-3A60-4312-BEFE-33C5F30FDB0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B69B8406-3A60-4312-BEFE-33C5F30FDB0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B69B8406-3A60-4312-BEFE-33C5F30FDB0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2779F170-0AEE-495E-B03A-224B6EF00CE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2779F170-0AEE-495E-B03A-224B6EF00CE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2779F170-0AEE-495E-B03A-224B6EF00CE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2779F170-0AEE-495E-B03A-224B6EF00CE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1B86AFA6-DEC3-440F-AC30-27C377D8476B} = {D6E2D421-4534-4CC5-80A7-B10A390485F1}
 		{175395E9-804A-4775-A6A9-992E78201B12} = {D6E2D421-4534-4CC5-80A7-B10A390485F1}
 		{64B30BF1-D929-46D6-8B13-06A18D39069C} = {D6E2D421-4534-4CC5-80A7-B10A390485F1}
 		{B69B8406-3A60-4312-BEFE-33C5F30FDB0C} = {D6E2D421-4534-4CC5-80A7-B10A390485F1}
+		{2779F170-0AEE-495E-B03A-224B6EF00CE5} = {D6E2D421-4534-4CC5-80A7-B10A390485F1}
 	EndGlobalSection
 EndGlobal

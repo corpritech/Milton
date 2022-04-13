@@ -62,7 +62,7 @@ public interface IState<TState> where TState : class
     /// <remarks>
     /// The property observer action will be invoked in the event that the property specified is updated within the state.
     /// </remarks>
-    /// <param name="propertyExpression">he expression identifying which property to observe.</param>
+    /// <param name="propertyExpression">The expression identifying which property to observe.</param>
     /// <param name="onChangeAction">The action to invoke in the event that the property value is updated.</param>
     /// <typeparam name="TProperty">The property type.</typeparam>
     public void OnChange<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, Action<TProperty, TProperty> onChangeAction);
