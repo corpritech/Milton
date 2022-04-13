@@ -1,7 +1,7 @@
-﻿using CorpriTech.Milton.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CorpriTech.Milton;
+using CorpriTech.Milton.Abstractions;
 
-namespace CorpriTech.Milton.Extensions.Microsoft.DependencyInjection.Extensions;
+namespace Microsoft.Extensions.DependencyInjection.Extensions;
 
 public static class ServiceCollectionExtensions
 {

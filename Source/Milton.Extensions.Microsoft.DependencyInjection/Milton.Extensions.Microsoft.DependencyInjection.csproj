@@ -5,13 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</AssemblyName>
-        <RootNamespace>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</RootNamespace>
+        <RootNamespace>Microsoft.Extensions.DependencyInjection</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</PackageId>
-        <PackageVersion>2.0.0-beta</PackageVersion>
-        <PackageReleaseNotes>Added code documentation. AddState has been renamed to AddMilton.</PackageReleaseNotes>
+        <PackageVersion>3.0.0-beta</PackageVersion>
+        <PackageReleaseNotes>Updated namespaces to match Microsoft recommendations.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
