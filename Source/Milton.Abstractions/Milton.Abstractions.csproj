@@ -10,7 +10,7 @@
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Abstractions</PackageId>
-        <PackageVersion>1.0.0-beta-0001</PackageVersion>
+        <PackageVersion>1.1.0-beta-0001</PackageVersion>
         <PackageReleaseNotes>Added code documentation.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
