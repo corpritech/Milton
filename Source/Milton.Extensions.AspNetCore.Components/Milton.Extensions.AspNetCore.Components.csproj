@@ -8,6 +8,22 @@
         <RootNamespace>Microsoft.AspNetCore.Components</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PackageId>CorpriTech.Milton.Extensions.AspNetCore.Components</PackageId>
+        <PackageVersion>1.0.0-beta-0001</PackageVersion>
+        <PackageReleaseNotes>Initial version.</PackageReleaseNotes>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
+        <Authors>CorpriTech</Authors>
+        <PackageTags>CorpriTech;Milton;State;Components;Event Callback;Blazor</PackageTags>
+        <RepositoryUrl>https://github.com/corpritech/Milton</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/corpritech/Milton</PackageProjectUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <Description>Extensions to add support for AspNetCore component functionality to Milton. Milton is a state container generator that helps automate the process of creating immutable observable states. Milton is mostly designed to be used in combination with Blazor WASM, however Milton can be used anywhere observable state is required.</Description>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Milton.Abstractions\Milton.Abstractions.csproj" />
     </ItemGroup>
