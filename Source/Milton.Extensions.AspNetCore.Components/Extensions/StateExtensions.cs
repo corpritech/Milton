@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using CorpriTech.Milton.Abstractions;
 
 namespace Microsoft.AspNetCore.Components.Extensions;
 
+#pragma warning disable CS1591
 public static class StateExtensions
+#pragma warning restore CS1591
 {
     /// <summary>
     /// Adds a property observer to this state.

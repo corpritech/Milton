@@ -12,6 +12,7 @@ public interface IState<TState> where TState : class
     /// The current state.
     /// </summary>
     public TState CurrentState { get; }
+
     /// <summary>
     /// Updates the specified property, setting the property value to the value provided.
     /// </summary>
@@ -25,6 +26,7 @@ public interface IState<TState> where TState : class
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <returns>A task representing the update operation.</returns>
     public Task UpdateAsync<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, TProperty value);
+
     /// <summary>
     /// Updates the properties specified within the provided action using a <see cref="IStateUpdateBuilder{TInnerState}"/>.
     /// </summary>
@@ -38,6 +40,7 @@ public interface IState<TState> where TState : class
     /// <param name="updateAction">The action which will be provided a <see cref="IStateUpdateBuilder{TInnerState}"/>.</param>
     /// <returns>A task representing the update operation.</returns>
     public Task UpdateAsync(Action<IStateUpdateBuilder<TState>> updateAction);
+
     /// <summary>
     /// Adds a global observer to this state.
     /// </summary>
@@ -46,6 +49,7 @@ public interface IState<TState> where TState : class
     /// </remarks>
     /// <param name="onChangeAction">The action to invoke in the event of a state change.</param>
     public void OnChange(Action<IState<TState>> onChangeAction);
+
     /// <summary>
     /// Adds a property observer to this state.
     /// </summary>
@@ -56,6 +60,7 @@ public interface IState<TState> where TState : class
     /// <param name="onChangeAction">The action to invoke in the event that the property value is updated.</param>
     /// <typeparam name="TProperty">The property type.</typeparam>
     public void OnChange<TProperty>(Expression<Func<TState, TProperty>> propertyExpression, Action<TProperty> onChangeAction);
+
     /// <summary>
     /// Adds a property observer to this state.
     /// </summary>

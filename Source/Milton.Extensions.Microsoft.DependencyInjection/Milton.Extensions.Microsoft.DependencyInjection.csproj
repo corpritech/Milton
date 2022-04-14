@@ -6,12 +6,13 @@
         <Nullable>enable</Nullable>
         <AssemblyName>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</AssemblyName>
         <RootNamespace>Microsoft.Extensions.DependencyInjection</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</PackageId>
-        <PackageVersion>1.1.0-beta-0001</PackageVersion>
-        <PackageReleaseNotes>Updated namespaces to match Microsoft recommendations.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta-0002</PackageVersion>
+        <PackageReleaseNotes>Added code documentation.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
