@@ -163,7 +163,7 @@ public class State<TState> : IState<TState> where TState : class
 
             _propertyInfo.SetValue(state, newValue);
 
-            NotifyStateChanged(oldValue, newValue);
+            NotifyStateChanged(newValue, oldValue);
         }
 
         private void NotifyStateChanged(TProperty newValue, TProperty oldValue)
