@@ -1,6 +1,6 @@
 ﻿using CorpriTech.Milton.Abstractions;
 
-namespace Microsoft.AspNetCore.Components;
+namespace CorpriTech.Milton.Extensions.AspNetCore.Components;
 
 /// <summary>
 /// Represents an update to a <see cref="IState{TState}"/> property.

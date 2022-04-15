@@ -5,14 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>CorpriTech.Milton.Extensions.AspNetCore.Components</AssemblyName>
-        <RootNamespace>Microsoft.AspNetCore.Components</RootNamespace>
+        <RootNamespace>CorpriTech.Milton.Extensions.AspNetCore.Components</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Extensions.AspNetCore.Components</PackageId>
-        <PackageVersion>1.1.0-beta-0004</PackageVersion>
-        <PackageReleaseNotes>Added code documentation.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta-0005</PackageVersion>
+        <PackageReleaseNotes>Changed state extensions namespace to Milton.Abstractions.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
