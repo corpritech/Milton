@@ -5,14 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</AssemblyName>
-        <RootNamespace>Microsoft.Extensions.DependencyInjection</RootNamespace>
+        <RootNamespace>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Extensions.Microsoft.DependencyInjection</PackageId>
-        <PackageVersion>1.1.0-beta-0002</PackageVersion>
-        <PackageReleaseNotes>Added code documentation.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta-0003</PackageVersion>
+        <PackageReleaseNotes>Added support for different state lifetimes and state accessors.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
