@@ -1,6 +1,13 @@
 ﻿namespace CorpriTech.Milton.Abstractions;
 
+/// <summary>
+/// Allows accessing a state with a scoped lifetime from a singleton service.
+/// </summary>
+/// <typeparam name="TState">The state type.</typeparam>
 public interface IStateAccessor<TState> where TState : class
 {
-    IState<TState> State { get; }
+    /// <summary>
+    /// The state.
+    /// </summary>
+    IState<TState>? State { get; }
 }
