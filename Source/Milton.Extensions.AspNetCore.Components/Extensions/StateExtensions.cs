@@ -1,9 +1,8 @@
 ﻿using System.Linq.Expressions;
-using CorpriTech.Milton.Abstractions;
 using CorpriTech.Milton.Extensions.AspNetCore.Components;
 using Microsoft.AspNetCore.Components;
 
-namespace Milton.Abstractions;
+namespace CorpriTech.Milton.Abstractions;
 
 #pragma warning disable CS1591
 public static class StateExtensions

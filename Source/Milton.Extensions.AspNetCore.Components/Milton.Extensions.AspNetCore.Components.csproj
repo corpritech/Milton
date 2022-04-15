@@ -11,8 +11,8 @@
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Extensions.AspNetCore.Components</PackageId>
-        <PackageVersion>1.1.0-beta-0005</PackageVersion>
-        <PackageReleaseNotes>Changed state extensions namespace to Milton.Abstractions.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta-0006</PackageVersion>
+        <PackageReleaseNotes>Changed state extensions namespace to CorpriTech.Milton.Abstractions.</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>
