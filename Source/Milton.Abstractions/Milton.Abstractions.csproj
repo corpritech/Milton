@@ -5,14 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>CorpriTech.Milton.Abstractions</AssemblyName>
-        <RootNamespace>CorpriTech.Milton.Abstractions</RootNamespace>
+        <RootNamespace>CorpriTech.Milton</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>CorpriTech.Milton.Abstractions</PackageId>
-        <PackageVersion>1.1.0-beta-0003</PackageVersion>
-        <PackageReleaseNotes>Added support for state accessors.</PackageReleaseNotes>
+        <PackageVersion>1.1.0-beta-0004</PackageVersion>
+        <PackageReleaseNotes>Milton abstractions have been moved to CorpriTech.Milton (previously CorpriTech.Milton.Abstractions).</PackageReleaseNotes>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Copyright>Copyright (c) 2022 Corpri Technology Solutions LLC</Copyright>
         <Authors>CorpriTech</Authors>

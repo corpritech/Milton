@@ -1,6 +1,4 @@
-﻿using CorpriTech.Milton.Abstractions;
-
-namespace CorpriTech.Milton.Extensions.Microsoft.DependencyInjection;
+﻿namespace CorpriTech.Milton.Extensions.Microsoft.DependencyInjection;
 
 /// <inheritdoc cref="State{TState}"/>
 public class InjectedState<TState> : State<TState> where TState : class

@@ -1,4 +1,4 @@
-﻿using CorpriTech.Milton.Abstractions;
+﻿using CorpriTech.Milton;
 using CorpriTech.Milton.Extensions.Microsoft.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection.Extensions;

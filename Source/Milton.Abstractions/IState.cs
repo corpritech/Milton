@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace CorpriTech.Milton.Abstractions;
+namespace CorpriTech.Milton;
 
 /// <summary>
 /// A state wrapper that wraps an object of a given type and provides methods for observing and updating the state.

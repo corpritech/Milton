@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace CorpriTech.Milton.Abstractions;
+namespace CorpriTech.Milton;
 
 /// <summary>
 /// A builder for state updates, allowing multiple properties to be specified in a single update.

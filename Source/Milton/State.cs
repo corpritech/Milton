@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
-using CorpriTech.Milton.Abstractions;
 using CorpriTech.Milton.Extensions;
 
 namespace CorpriTech.Milton;
@@ -161,7 +160,7 @@ public class State<TState> : IState<TState> where TState : class
         {
             var oldValue = (TProperty) _propertyInfo.GetValue(state)!;
 
-            _propertyInfo.SetValue(state, newValue);
+            _propertyInfo.GetSetMethod(true)?.Invoke(state, new object?[] { newValue });
 
             NotifyStateChanged(newValue, oldValue);
         }

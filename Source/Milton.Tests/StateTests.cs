@@ -146,7 +146,7 @@ public class StateTests
 
     private class MockCloneableState : MockState, ICloneable
     {
-        public bool WasCloned { get; private init; }= false;
+        public bool WasCloned { get; private set; } = false;
         public object Clone()
         {
             return new MockCloneableState()
@@ -158,7 +158,7 @@ public class StateTests
     
     private class MockState
     {
-        public int Number { get; init; } = 0;
-        public string String { get; init; } = "";
+        public int Number { get; protected set; } = 0;
+        public string String { get; protected set; } = "";
     }
 }

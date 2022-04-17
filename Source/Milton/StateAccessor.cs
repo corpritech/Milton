@@ -1,6 +1,4 @@
-﻿using CorpriTech.Milton.Abstractions;
-
-namespace CorpriTech.Milton;
+﻿namespace CorpriTech.Milton;
 
 /// <inheritdoc cref="IStateAccessor{TState}"/>
 public class StateAccessor<TState> : IStateAccessor<TState> where TState : class

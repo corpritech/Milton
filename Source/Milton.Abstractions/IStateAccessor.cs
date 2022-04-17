@@ -1,4 +1,4 @@
-﻿namespace CorpriTech.Milton.Abstractions;
+﻿namespace CorpriTech.Milton;
 
 /// <summary>
 /// Allows accessing a state with a scoped lifetime from a singleton service.
