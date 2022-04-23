@@ -8,18 +8,24 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    env:
+      BUILD_CONFIG: 'Release'
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration $BUILD_CONFIG
+      - name: Test
+        run: dotnet test --no-build --verbosity normal --configuration $BUILD_CONFIG
+      - name: Pack
+        run: dotnet pack --configuration $BUILD_CONFIG
+      - name: Publish
+        run: |
+          dotnet nuget add source --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json"
+          dotnet nuget push **\*.nupkg --source "github"
